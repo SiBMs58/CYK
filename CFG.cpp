@@ -58,18 +58,25 @@ void CFG::accepts(const string &inputString) {
     vector<vector<string>> table;
     for (int i = 1; i <= inputString.length(); i++) {
         std::vector<string> row;
-        row.push_back("|");
         for (int j = 1; j <= i; j++) {
-            row.push_back(" a  ");
-            row.push_back("|");
+            row.push_back("| |");
         }
         table.push_back(row);
     }
 
-    for (int i = 0; i < inputString.length(); i++) {
-        for (int j = i; j < inputString.length(); j++) {
-            for (int k = i; k <= j; k++) {
-                std::cout << inputString[k];
+    for (int len = 1; len <= inputString.length(); len++) {
+        for (int i = 0; i + len <= inputString.length(); i++) {
+            for (int j = i; j < i + len; j++) {
+                std::cout << inputString[j];
+                /*for (int l = 0; l < P.size(); l++) {
+                    for (int m = 0; m < P[l].second.size(); ++m) {
+                        //cout << P[l].second[m];
+                        string str(1, inputString[j]);
+                        if (P[l].second[m] == str) {
+                            table[len][i] = P[l].first;
+                        }
+                    }
+                }*/
             }
             std::cout << std::endl;
         }
