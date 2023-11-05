@@ -53,6 +53,36 @@ CFG::CFG(const string &filename) {
     P = productions;
 }
 
+void CFG::accepts(const string &inputString) {
+    vector<vector<string>> table;
+    for (int i = 1; i <= inputString.length(); i++) {
+        std::vector<string> row;
+        row.push_back("|");
+        for (int j = 1; j <= i; j++) {
+            row.push_back(" a  ");
+            row.push_back("|");
+        }
+        table.push_back(row);
+    }
+
+    for (int i = 0; i < inputString.length(); i++) {
+        for (int j = i; j < inputString.length(); j++) {
+            for (int k = i; k <= j; k++) {
+                std::cout << inputString[k];
+            }
+            std::cout << std::endl;
+        }
+    }
+
+    // Printing the table
+    for (const auto& row : table) {
+        for (auto character : row) {
+            std::cout << character << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
 void CFG::print() {
     // V, Set of variables
     cout << "V = {";

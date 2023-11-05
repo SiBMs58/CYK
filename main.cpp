@@ -8,8 +8,8 @@ using namespace std;
 
 int main() {
     CFG cfg("../input-cyk1.json");
-    cfg.print();
-    /*cfg.accepts("baaba"); //moet true geven
-    cfg.accepts("abba"); //moet false geven*/
+    //cfg.print();
+    cfg.accepts("baaba"); //moet true geven
+    cfg.accepts("abba"); //moet false geven
     return 0;
 }

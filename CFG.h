@@ -22,6 +22,8 @@ public:
 
     CFG(const string &filename);
 
+    void accepts(const string &inputString);
+
     void print();
 
     // Setters
