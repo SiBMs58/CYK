@@ -54,6 +54,7 @@ CFG::CFG(const string &filename) {
 }
 
 void CFG::accepts(const string &inputString) {
+    // CYK algorithm p.303
     vector<vector<string>> table;
     for (int i = 1; i <= inputString.length(); i++) {
         std::vector<string> row;
