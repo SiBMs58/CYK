@@ -90,13 +90,12 @@ void CFG::accepts(const string &inputString) {
         }
     }
 
-    // Inductive case
+    // Inductive case https://web.cs.ucdavis.edu/~rogaway/classes/120/winter12/CYK.pdf
     for (int i = n - 2; i >= 0; i--) {
         for (int j = 0; j <= i; j++) {
             set<string> pairs;
 
             for (int k = i + 1; k < j; k++) {
-                cout << k << endl;
                 for (const string& nt1 : table[i][k]) {
                     for (const string& nt2 : table[k][j]) {
                         pairs.insert(nt1 + nt2);
