@@ -4,6 +4,7 @@
 
 #include "CFG.h"
 #include <iostream>
+#include <set>
 #include <fstream>
 #include "json.hpp"
 using namespace std;
@@ -54,41 +55,94 @@ CFG::CFG(const string &filename) {
 }
 
 void CFG::accepts(const string &inputString) {
+    int n = inputString.length();
+
+    // Create table
+    vector<vector<set<string>>> table(n);
+    for (int i = 0; i < n; i++) {
+        table[i].resize(i + 1);
+    }
+
     // CYK algorithm p.303
-    vector<vector<string>> table;
-    for (int i = 1; i <= inputString.length(); i++) {
-        std::vector<string> row;
-        for (int j = 1; j <= i; j++) {
-            row.push_back("| |");
-        }
-        table.push_back(row);
-    }
-
-    for (int len = 1; len <= inputString.length(); len++) {
-        for (int i = 0; i + len <= inputString.length(); i++) {
+    /*queue<string> unitStrings;
+    for (int len = 1; len <= n; len++) {
+        for (int i = 0; i + len <= n; i++) {
+            string unitString;
             for (int j = i; j < i + len; j++) {
-                std::cout << inputString[j];
-                /*for (int l = 0; l < P.size(); l++) {
-                    for (int m = 0; m < P[l].second.size(); ++m) {
-                        //cout << P[l].second[m];
-                        string str(1, inputString[j]);
-                        if (P[l].second[m] == str) {
-                            table[len][i] = P[l].first;
-                        }
-                    }
-                }*/
+                string str (1, inputString[j]);
+                unitString += str;
             }
-            std::cout << std::endl;
+            unitStrings.push(unitString);
+        }
+    }*/
+
+
+    // Basis case
+    for (int i = 0; i < n; i++) {
+        char terminal =  inputString[i];
+        string terminalString(1, terminal);
+        for (const auto& production : P) {
+            for (int j = 0; j < production.second.size(); ++j) {
+                if (production.second[j] == terminalString) {
+                    table[n-1][i].insert(production.first);
+                }
+            }
         }
     }
 
-    // Printing the table
-    for (const auto& row : table) {
-        for (auto character : row) {
-            std::cout << character << " ";
+    // Inductive case
+    for (int i = n - 2; i >= 0; i--) {
+        for (int j = 0; j <= i; j++) {
+            set<string> pairs;
+
+            for (int k = i + 1; k < j; k++) {
+                cout << k << endl;
+                for (const string& nt1 : table[i][k]) {
+                    for (const string& nt2 : table[k][j]) {
+                        pairs.insert(nt1 + nt2);
+                    }
+                }
+            }
+
+            for (const auto& pair : pairs) {
+                for (const auto& production : P) {
+                    string body = "";
+                    for (const string& str : production.second) {
+                        body += str;
+                    }
+                    if (body == pair) {
+                        table[i][j].insert(production.first);
+                    }
+                }
+            }
+
         }
-        std::cout << std::endl;
     }
+
+
+    // Print table
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < i + 1; j++) {
+            // Print the elements in the set
+            cout << "| ";
+            if (!table[i][j].empty()) {
+                bool first = true;
+                cout << "{";
+                for (const string& nt : table[i][j]) {
+                    if (!first) {
+                        cout << ", ";
+                    }
+                    cout << nt;
+                    first = false;
+                }
+                cout << "} ";
+            } else {
+                cout << "{} ";
+            }
+        }
+        cout << "|" << endl;
+    }
+
 }
 
 void CFG::print() {
