@@ -54,6 +54,16 @@ CFG::CFG(const string &filename) {
     P = productions;
 }
 
+set<string> concatenate(set<string> &set1, set<string> &set2) {
+    set<string> result;
+    for (const string& str1 : set1) {
+        for (const string& str2 : set2) {
+            result.insert(str1 + str2);
+        }
+    }
+    return result;
+}
+
 void CFG::accepts(const string &inputString) {
     int n = inputString.length();
 
@@ -93,17 +103,39 @@ void CFG::accepts(const string &inputString) {
     // Inductive case https://web.cs.ucdavis.edu/~rogaway/classes/120/winter12/CYK.pdf
     for (int i = n - 2; i >= 0; i--) {
         for (int j = 0; j <= i; j++) {
-            set<string> pairs;
+            cout << "Table[" << i << "][" << j << "]" << endl;
 
-            for (int k = i + 1; k < j; k++) {
-                for (const string& nt1 : table[i][k]) {
-                    for (const string& nt2 : table[k][j]) {
-                        pairs.insert(nt1 + nt2);
+            vector<set<string>> pairs;
+            if (i > n/2) {
+                cout << "i > n/2" << endl;
+                for (int k = n-1; k > i; k--) {
+                    for (int l = j; l < n-i+j; l += (k-i)) {
+                        cout << "k: " << k << " l: " << l << endl;
+                        //pairs.push_back(concatenate(table[k][l], table[k][l]));
+                    }
+
+                }
+            } else if (i == 2) {
+                cout << "i == 2" << endl;
+                for (int k = n-1; k > i; k--) {
+                    for (int l = 0; l < table[k].size(); l++) {
+                        cout << "k: " << k << " l: " << l << endl;
+                        //pairs.push_back(concatenate(table[k][l], table[k][l]));
+                    }
+                }
+            } else {
+                cout << "i < n/2" << endl;
+                for (int k = n-1; k > i; k--) {
+                    for (int l = 0; l < table[k].size(); l++) {
+                        cout << "k: " << k << " l: " << l << endl;
+                        //pairs.push_back(concatenate(table[k][l], table[k][l]));
                     }
                 }
             }
 
-            for (const auto& pair : pairs) {
+
+
+            /*for (const auto& pair : pairs) {
                 for (const auto& production : P) {
                     string body = "";
                     for (const string& str : production.second) {
@@ -113,7 +145,7 @@ void CFG::accepts(const string &inputString) {
                         table[i][j].insert(production.first);
                     }
                 }
-            }
+            }*/
 
         }
     }
