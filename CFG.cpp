@@ -94,7 +94,7 @@ void CFG::accepts(const string &inputString) {
         }
     }
 
-    // Print the CYK parsing table with a newline for each column
+    // Helper function for print
     vector<vector<set<string>>> table(n);
     for (int i = 0; i < n; i++) {
         table[i].resize(i + 1);
@@ -140,10 +140,14 @@ void CFG::accepts(const string &inputString) {
 
 
     // If the word can be formed by the given grammar
-    if (T[0][n - 1].size() != 0)
-        cout << "True\n";
-    else
-        cout << "False\n";
+    for (int i = 0; i < n; i++) {
+        if (T[0][i].count(S) == 1) {
+            cout << "True" << endl;
+            return;
+        }
+    }
+    cout << "False" << endl;
+    return;
 
     /*// Create table
     vector<vector<set<string>>> table(n);
