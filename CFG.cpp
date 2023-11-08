@@ -140,7 +140,7 @@ void CFG::accepts(const string &inputString) {
 
 
     // If the word can be formed by the given grammar
-    if (T[0][0].count(S) == 1) {
+    if (table[0][0].count(S) == 1) {
         cout << "True" << endl;
         return;
     }
