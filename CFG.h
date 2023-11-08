@@ -34,6 +34,7 @@ public:
 
     // Getters
     const vector<string> &getV() const;
+    const vector<pair<string, vector<string>>> &getP() const;
 };
 
 

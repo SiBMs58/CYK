@@ -5,6 +5,7 @@
 #include "CFG.h"
 #include <iostream>
 #include <set>
+#include <queue>
 #include <fstream>
 #include "json.hpp"
 using namespace std;
@@ -54,27 +55,104 @@ CFG::CFG(const string &filename) {
     P = productions;
 }
 
-set<string> concatenate(set<string> &set1, set<string> &set2) {
-    set<string> result;
-    for (const string& str1 : set1) {
-        for (const string& str2 : set2) {
-            result.insert(str1 + str2);
-        }
-    }
-    return result;
-}
-
 void CFG::accepts(const string &inputString) {
     int n = inputString.length();
+    vector<string> w;
+    for (int i = 0; i < n; i++) {
+        string str (1, inputString[i]);
+        w.push_back(str);
+    }
 
-    // Create table
+    // Initialize the table
+    map<int, map<int, set<string>>> T;
+
+    // Filling in the table
+    for (int j = 0; j < n; j++) {
+        // Iterate over the productions
+        for (const auto& production : P) {
+            string lhs = production.first;
+            const vector<string>& rhs = production.second;
+
+            // If a terminal is found
+            if (rhs.size() == 1 && rhs[0] == w[j])
+                T[j][j].insert(lhs);
+        }
+
+        for (int i = j; i >= 0; i--) {
+            // Iterate over the range from i to j
+            for (int k = i; k <= j; k++) {
+                // Iterate over the productions
+                for (const auto& production : P) {
+                    string lhs = production.first;
+                    const vector<string>& rhs = production.second;
+
+                    // If a non-terminal is found
+                    if (rhs.size() == 2 && T[i][k].count(rhs[0]) && T[k + 1][j].count(rhs[1]))
+                        T[i][j].insert(lhs);
+                }
+            }
+        }
+    }
+
+    // Print the CYK parsing table with a newline for each column
+    vector<vector<set<string>>> table(n);
+    for (int i = 0; i < n; i++) {
+        table[i].resize(i + 1);
+    }
+
+    for (int i = 0; i < n; i++) {
+        queue<set<string>> col;
+         for (int j = 0; j < n; j++) {
+            set<string> symbols = T[i][j];
+            col.push(symbols);
+        }
+        for (int l = 0; l < i; l++) {
+            col.pop();
+        }
+        for (int k = n-1; k >= i; k--) {
+            table[k][i] = col.front();
+            col.pop();
+        }
+    }
+    // Print table
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < i + 1; j++) {
+            // Print the elements in the set
+            cout << "| ";
+            if (!table[i][j].empty()) {
+                bool first = true;
+                cout << "{";
+                for (const string& nt : table[i][j]) {
+                    if (!first) {
+                        cout << ", ";
+                    }
+                    cout << nt;
+                    first = false;
+                }
+                cout << "} ";
+            } else {
+                cout << "{} ";
+            }
+        }
+        cout << "|" << endl;
+    }
+
+
+
+    // If the word can be formed by the given grammar
+    if (T[0][n - 1].size() != 0)
+        cout << "True\n";
+    else
+        cout << "False\n";
+
+    /*// Create table
     vector<vector<set<string>>> table(n);
     for (int i = 0; i < n; i++) {
         table[i].resize(i + 1);
     }
 
     // CYK algorithm p.303
-    /*queue<string> unitStrings;
+    queue<string> unitStrings;
     for (int len = 1; len <= n; len++) {
         for (int i = 0; i + len <= n; i++) {
             string unitString;
@@ -84,7 +162,7 @@ void CFG::accepts(const string &inputString) {
             }
             unitStrings.push(unitString);
         }
-    }*/
+    }
 
 
     // Basis case
@@ -135,7 +213,7 @@ void CFG::accepts(const string &inputString) {
 
 
 
-            /*for (const auto& pair : pairs) {
+            for (const auto& pair : pairs) {
                 for (const auto& production : P) {
                     string body = "";
                     for (const string& str : production.second) {
@@ -145,8 +223,19 @@ void CFG::accepts(const string &inputString) {
                         table[i][j].insert(production.first);
                     }
                 }
-            }*/
+            }
 
+        }
+    }
+
+    for (int l = 2; l <= n; l++) { // Length of span
+        for (int s = 1; s <= n-l+1; s++) { // Start of span
+            for (int p = 1; p <= l-1; p++) { // Partition of span
+                set<string> body = produce(table[s][p], table[s+1][s+l-1], *this);
+                if (!body.empty()) {
+                }
+                cout << "l: " << l << " s: " << s << " p: " << p << endl;
+            }
         }
     }
 
@@ -172,7 +261,7 @@ void CFG::accepts(const string &inputString) {
             }
         }
         cout << "|" << endl;
-    }
+    }*/
 
 }
 
@@ -242,4 +331,8 @@ void CFG::setP(const vector<pair<string, vector<string>>> &p) {
 // Getters
 const vector<string> &CFG::getV() const {
     return V;
+}
+
+const vector<pair<string, vector<string>>> &CFG::getP() const {
+    return P;
 }
